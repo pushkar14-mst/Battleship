@@ -1,0 +1,32 @@
+﻿<Properties StartupConfiguration="{B3928EF8-4C50-4869-B76A-24602C8C1D88}|https">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Hubs/PlayersHub.cs">
+    <Files>
+      <File FileName="Controllers/Battleship.cs" Line="26" Column="12" />
+      <File FileName="Program.cs" Line="14" Column="29" />
+      <File FileName="Hubs/PlayersHub.cs" Line="16" Column="6" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="server" expanded="True">
+            <Node name="server" expanded="True">
+              <Node name="Controllers" expanded="True" />
+              <Node name="Hubs" expanded="True">
+                <Node name="PlayersHub.cs" selected="True" />
+              </Node>
+              <Node name="Properties" expanded="True" />
+              <Node name="appsettings.json" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.server PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MultiItemStartupConfigurations />
+</Properties>
