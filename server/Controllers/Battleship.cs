@@ -6,24 +6,41 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using server.Hubs;
+using server.Models;
+using server.Data;
+using MongoDB.Bson;
+using Newtonsoft.Json;
 namespace server.Controllers
 {
+    
     public class Battleship : Controller
     {
         private IHubContext<PlayersHub> _hub;
-        public Battleship(IHubContext<PlayersHub> hub)
+        private readonly MongoDBServices _playersDBContext;
+        public Battleship(IHubContext<PlayersHub> hub,MongoDBServices playersDBContext)
         {
             _hub = hub;
+            _playersDBContext = playersDBContext;
         }
-        
-        [HttpGet]
-        public JsonResult Home()
+        [HttpPost]
+        public async Task<IActionResult> NewGame()
         {
-            var res=new JsonResult(new { message = "Welcome to Battleship server" });
-            return res;
+            try
+            {
+                using StreamReader reader = new(Request.Body, Encoding.UTF8);
+                string body = await reader.ReadToEndAsync();
+                Console.WriteLine(body);
+                PlayersModel newGame = JsonConvert.DeserializeObject<PlayersModel>(body);
+                Console.WriteLine("newGame:",newGame);
+                await _playersDBContext.CreateAsync(newGame);
+                return Ok("New Game created successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
         [HttpPost]
         public async Task<IActionResult> GetFleets()
