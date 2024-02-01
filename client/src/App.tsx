@@ -1,10 +1,13 @@
-import Board from "./components/Board";
+import { Route, Routes } from "react-router";
+import GamePage from "./pages/GamePage/GamePage";
+import HomePage from "./pages/HomePage/HomePage";
 
 function App() {
   return (
-    <>
-      <Board />
-    </>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/game" element={<GamePage />} />
+    </Routes>
   );
 }
 

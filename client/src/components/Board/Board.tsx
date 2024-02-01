@@ -44,13 +44,6 @@ const Board: React.FC = () => {
 
   return (
     <>
-      <h1
-        style={{
-          textAlign: "center",
-        }}
-      >
-        Battleship
-      </h1>
       <div className="board-container">
         <div className="board">
           {Array(10)
