@@ -32,7 +32,10 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 .new-game-btn,
-.join-game-btn {
+.join-game-btn,
+.create-game-btn,
+.join-game-submit-btn,
+.cancel-btn {
   height: 80px;
   width: 200px;
   margin-top: 20px;
@@ -41,7 +44,30 @@
   border-radius: 8px;
   background-color: #008080;
   color: #b3e0dc;
-  font-size: 16px;
+  font-size: 24px;
+  font-weight: bold;
   cursor: pointer;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+.new-game-input,
+.join-game-input {
+  width: 200px;
+  height: 60px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #008080;
+  color: #b3e0dc;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.new-game-input,
+.join-game-input::placeholder {
+  color: #b3e0dcc2;
+  font-size: 24px;
+  font-weight: bold;
 }

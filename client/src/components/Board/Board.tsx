@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import * as signalR from "@microsoft/signalr";
 import "./Board.css";
-const Board: React.FC = () => {
+
+interface IGameInfoProps {
+  gameId: string;
+  playerName: string;
+}
+const Board: React.FC<IGameInfoProps> = (props) => {
   const [selectedCell, setSelectedCell] = useState<number[][]>([]);
 
   let connection = new signalR.HubConnectionBuilder()
@@ -21,6 +26,8 @@ const Board: React.FC = () => {
         console.log("Connection established");
         connection.invoke("SendFleetPlacements", {
           fleetPlacements: selectedCell,
+          playedBy: props.playerName,
+          gameId: props.gameId,
         });
         connection.on("ReceiveFleetsFromServer", (message, data) => {
           console.log(message, data);
@@ -29,7 +36,7 @@ const Board: React.FC = () => {
       .catch((error) => {
         console.error("Error establishing connection:", error);
       });
-  }, []);
+  }, [selectedCell]);
 
   console.log(selectedCell);
   const sendFleetPlacementsToServer = async () => {

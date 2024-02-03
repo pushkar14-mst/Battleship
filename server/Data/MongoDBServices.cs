@@ -17,6 +17,12 @@ namespace server.Data
         }
         public async Task CreateAsync(PlayersModel newGame) =>
         await _playersCollection.InsertOneAsync(newGame);
+        public async Task<PlayersModel> RetrieveGameByGameId(string gameId)
+        {
+            var filter = Builders<PlayersModel>.Filter.Eq("game.gameId", gameId);
+            PlayersModel res= await _playersCollection.Find(filter).FirstOrDefaultAsync();
+            return res;
+        }
     }
 }
 
