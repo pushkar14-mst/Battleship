@@ -2,18 +2,41 @@ import "./HomePage.css";
 import battshipPoster from "../../assets/battleshipsposter.jpg";
 import { useEffect, useState } from "react";
 import useApi from "../../hooks/apiHook";
+import * as signalR from "@microsoft/signalr";
 const HomePage = () => {
   const [toggle, setToggle] = useState<string>("");
   const [gameCode, setGameCode] = useState<string>("");
   const [playerName, setPlayerName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { createGame } = useApi();
+  const { createGame, joinGame } = useApi();
   const createNewGame = async (gameCode: string, playerName: string) => {
     setLoading(true);
     await createGame(gameCode, playerName);
     setLoading(false);
   };
+
+  const retrieveGame = async (gameCode: string, playerName: string) => {
+    setLoading(true);
+    await joinGame(gameCode, playerName);
+    setLoading(false);
+  };
+  let connection = new signalR.HubConnectionBuilder()
+    .configureLogging(signalR.LogLevel.Debug)
+    .withUrl("https://localhost:7175/playersHub", {
+      skipNegotiation: true,
+      transport: signalR.HttpTransportType.WebSockets,
+    })
+    .build();
+  useEffect(() => {
+    connection.start().then(() => {
+      connection.invoke("CreateGameRoom", gameCode);
+      connection.on("GameRoomCreated", (gameId) => {
+        console.log("Game room created", gameId);
+      });
+      // connection.invoke("")
+    });
+  }, [createNewGame]);
   useEffect(() => {
     const setHeight = () => {
       const windowHeight = window.innerHeight;
@@ -97,15 +120,22 @@ const HomePage = () => {
                       type="text"
                       placeholder="Enter your name"
                       className="join-game-input"
+                      onChange={(e) => {
+                        setPlayerName(e.target.value);
+                      }}
                     />
                     <input
                       type="text"
                       placeholder="Enter game code"
                       className="join-game-input"
+                      onChange={(e) => {
+                        setGameCode(e.target.value);
+                      }}
                     />
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         console.log("Joining a game");
+                        await retrieveGame(gameCode, playerName);
                       }}
                       className="join-game-submit-btn"
                     >

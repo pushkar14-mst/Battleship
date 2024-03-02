@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import * as signalR from "@microsoft/signalr";
 import "./Board.css";
+import useApi from "../../hooks/apiHook";
+import { useSelector } from "react-redux";
 
 interface IGameInfoProps {
   gameId: string;
@@ -9,7 +11,10 @@ interface IGameInfoProps {
 }
 const Board: React.FC<IGameInfoProps> = (props) => {
   const [selectedCell, setSelectedCell] = useState<number[][]>([]);
-
+  const [clearBoard, setClearBoard] = useState<boolean>(false);
+  const [score, setScore] = useState<number>(0);
+  const { retrieveGame } = useApi();
+  const game = useSelector((state: any) => state.game);
   let connection = new signalR.HubConnectionBuilder()
     .configureLogging(signalR.LogLevel.Debug)
     .withUrl("https://localhost:7175/playersHub", {
@@ -18,7 +23,11 @@ const Board: React.FC<IGameInfoProps> = (props) => {
     })
     .build();
   console.log(connection);
+  const oppositePlayer = game.players.find(
+    (player: any) => player.playerName !== props.playerName
+  );
 
+  console.log(oppositePlayer);
   useEffect(() => {
     connection
       .start()
@@ -32,6 +41,9 @@ const Board: React.FC<IGameInfoProps> = (props) => {
         connection.on("ReceiveFleetsFromServer", (message, data) => {
           console.log(message, data);
         });
+        connection.on("GameRoomCreated", (gameId) => {
+          console.log("Game room created", gameId);
+        });
       })
       .catch((error) => {
         console.error("Error establishing connection:", error);
@@ -40,17 +52,38 @@ const Board: React.FC<IGameInfoProps> = (props) => {
 
   console.log(selectedCell);
   const sendFleetPlacementsToServer = async () => {
-    await axios.post("https://localhost:7175/Battleship/GetFleets", {
-      fleetPlacements: selectedCell,
+    await axios.post("https://localhost:7175/Battleship/SetFleets", {
+      FleetsPalcements: selectedCell,
+      PlayedBy: props.playerName,
+      GameId: props.gameId,
     });
   };
 
+  const retrieveGameBoard = async () => {
+    await retrieveGame(props.gameId);
+    // setSelectedCell(oppositePlayer.fleetPlacements);
+    console.log("selectedcellstate", selectedCell);
+  };
+  const scoreHandler = () => {
+    oppositePlayer.fleetPlacements.forEach((cell: number[]) => {
+      if (selectedCell.some((selected: number[]) => selected === cell)) {
+        setScore(score + 1);
+      }
+    });
+  };
   useEffect(() => {
-    sendFleetPlacementsToServer();
+    if (!clearBoard) {
+      sendFleetPlacementsToServer();
+    }
+    if (clearBoard) {
+      scoreHandler();
+      console.log("score", score);
+    }
   }, [selectedCell]);
 
   return (
     <>
+      {clearBoard && <h3 style={{ textAlign: "center" }}>Score: {score}</h3>}
       <div className="board-container">
         <div className="board">
           {Array(10)
@@ -98,6 +131,19 @@ const Board: React.FC<IGameInfoProps> = (props) => {
               </div>
             ))}
         </div>
+        <button
+          style={{
+            backgroundColor: "white",
+            color: "#6b6b6b",
+          }}
+          onClick={() => {
+            retrieveGameBoard();
+            setClearBoard(true);
+            setSelectedCell([]);
+          }}
+        >
+          Submit
+        </button>
       </div>
     </>
   );

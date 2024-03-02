@@ -15,12 +15,13 @@ const gameSlice = createSlice({
     initialState,
     reducers: {
         setGame: (state, action: PayloadAction<any>) => {
-
+            console.log("Setting game", action.payload);
             state.gameId = action.payload.gameId;
             state.players = action.payload.players;
+            
         },
-        
         addPlayer: (state, action: PayloadAction<IPlayer>) => {
+
             state.players.push(action.payload);
         },
     },

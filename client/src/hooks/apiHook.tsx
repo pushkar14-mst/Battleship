@@ -15,7 +15,7 @@ const useApi = () => {
       })
       .then(() => {
         navigate("/game", {
-          state: { gameCode: gameCode },
+          state: { gameCode: gameCode, playerName: playerName },
         });
       });
   };
@@ -28,23 +28,32 @@ const useApi = () => {
       })
       .then((response: any) => {
         let game: any = response.data.game;
+        console.log(game);
+
         dispatch(gameActions.setGame(game));
       });
   };
-  //   const joinGame = async () => {
-  //     const response = await axios.post(
-  //       "https://localhost:7175/Battleship/JoinGame",
-  //       {
-  //         playerName,
-  //         gameCode,
-  //       }
-  //     );
-  //     console.log(response);
-  //   };
+  const joinGame = async (gameCode: string, playerName: string) => {
+    console.log("in join game api function", gameCode, playerName);
+
+    const response = await axios
+      .post("https://localhost:7175/Battleship/AddPlayerToGame", {
+        PlayerName: playerName,
+        GameId: gameCode,
+      })
+      .then(async () => {
+        await retrieveGame(gameCode);
+        navigate("/game", {
+          state: { gameCode: gameCode, playerName: playerName },
+        });
+      });
+    console.log(response);
+  };
 
   return {
     createGame,
     retrieveGame,
+    joinGame,
   };
 };
 

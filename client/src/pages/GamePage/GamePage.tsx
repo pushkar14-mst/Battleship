@@ -2,17 +2,31 @@ import { useLocation } from "react-router";
 import Board from "../../components/Board/Board";
 import useApi from "../../hooks/apiHook";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const GamePage: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  // const [retrievedGameFromServer, setRetrievedGameFromServer] = useState<any>(
+  //   {}
+  // );
+  const game = useSelector((state: any) => state.game);
   const location = useLocation();
   const gameCode = location.state.gameCode;
+  const playerName = location.state.playerName;
   const { retrieveGame } = useApi();
+  const onRetrieveGame = async () => {
+    // setLoading(true);
+    await retrieveGame(gameCode);
+  };
   useEffect(() => {
-    retrieveGame(gameCode);
+    if (game.players.length > 0) {
+      // setRetrievedGameFromServer(game);
+      setLoading(false);
+    }
+  }, [game]);
+  useEffect(() => {
+    onRetrieveGame();
   }, [gameCode]);
-  const retrievedGameFromServer = useSelector((state: any) => state.game);
-  console.log(retrievedGameFromServer);
 
   return (
     <>
@@ -23,14 +37,15 @@ const GamePage: React.FC = () => {
       >
         Battleship
       </h1>
-      <h2 style={{ textAlign: "center" }}>Game Code: {gameCode}</h2>
-      <h3 style={{ textAlign: "center" }}>
-        Player 1: {retrievedGameFromServer.players[0].playerName}
-      </h3>
-      <Board
-        gameId={gameCode}
-        playerName={retrievedGameFromServer.players[0].playerName}
-      />
+      {loading ? (
+        <h2>Loading...</h2>
+      ) : (
+        <>
+          <h2 style={{ textAlign: "center" }}>Game Code: {gameCode}</h2>
+          <h3 style={{ textAlign: "center" }}>Player: {playerName}</h3>
+          <Board gameId={gameCode} playerName={playerName} />
+        </>
+      )}
     </>
   );
 };
