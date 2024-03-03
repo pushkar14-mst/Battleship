@@ -9,10 +9,20 @@ interface IGameInfoProps {
   gameId: string;
   playerName: string;
 }
+interface IBombed {
+  bombed: boolean;
+  cell: number[];
+}
 const Board: React.FC<IGameInfoProps> = (props) => {
   const [selectedCell, setSelectedCell] = useState<number[][]>([]);
   const [clearBoard, setClearBoard] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
+  const [bombed, setBombed] = useState<IBombed[]>([
+    {
+      bombed: false,
+      cell: [],
+    },
+  ]);
   const { retrieveGame } = useApi();
   const game = useSelector((state: any) => state.game);
   let connection = new signalR.HubConnectionBuilder()
@@ -65,20 +75,44 @@ const Board: React.FC<IGameInfoProps> = (props) => {
     console.log("selectedcellstate", selectedCell);
   };
   const scoreHandler = () => {
+    // oppositePlayer.fleetPlacements.forEach((cell: number[]) => {
+    //   if (selectedCell.some((selected: number[]) => selected === cell)) {
+    //     setScore(score + 1);
+    //   }
+    // });
+    let score = 0;
     oppositePlayer.fleetPlacements.forEach((cell: number[]) => {
-      if (selectedCell.some((selected: number[]) => selected === cell)) {
-        setScore(score + 1);
-      }
+      selectedCell.forEach((selected: number[]) => {
+        console.log(selected, cell);
+
+        if (selected[0] === cell[0] && selected[1] === cell[1]) {
+          score--;
+          console.log("bombed"!!);
+          setBombed((prevState) => {
+            return [
+              ...prevState,
+              {
+                bombed: true,
+                cell: selected,
+              },
+            ];
+          });
+        } else {
+          score++;
+        }
+      });
     });
+    setScore(score);
   };
+  console.log("score", score);
   useEffect(() => {
     if (!clearBoard) {
       sendFleetPlacementsToServer();
     }
-    if (clearBoard) {
-      scoreHandler();
-      console.log("score", score);
-    }
+    // if (clearBoard) {
+    //   scoreHandler();
+    //   console.log("score", score);
+    // }
   }, [selectedCell]);
 
   return (
@@ -115,9 +149,24 @@ const Board: React.FC<IGameInfoProps> = (props) => {
                           }
                           return [...prevState, [i, j]];
                         });
+                        scoreHandler();
                       }}
                     >
-                      {selectedCell.some(
+                      {clearBoard &&
+                        !bombed.some(
+                          (cell) => cell.cell[0] === i && cell.cell[1] === j
+                        ) && (
+                          <>
+                            <img
+                              width="55"
+                              height="55"
+                              src="https://img.icons8.com/external-smashingstocks-isometric-smashing-stocks/55/external-Missile-military-smashingstocks-isometric-smashing-stocks.png"
+                              alt="external-Missile-military-smashingstocks-isometric-smashing-stocks"
+                            />
+                          </>
+                        )}
+                      {!clearBoard &&
+                      selectedCell.some(
                         (cell) => cell[0] === i && cell[1] === j
                       ) ? (
                         <>
@@ -125,6 +174,16 @@ const Board: React.FC<IGameInfoProps> = (props) => {
                         </>
                       ) : (
                         ""
+                      )}
+                      {bombed.some(
+                        (cell) => cell.cell[0] === i && cell.cell[1] === j
+                      ) && (
+                        <img
+                          width="55"
+                          height="55"
+                          src="https://img.icons8.com/external-febrian-hidayat-flat-febrian-hidayat/64/external-Damage-fantasy-and-rpg-febrian-hidayat-flat-febrian-hidayat.png"
+                          alt="external-Damage-fantasy-and-rpg-febrian-hidayat-flat-febrian-hidayat"
+                        />
                       )}
                     </div>
                   ))}
